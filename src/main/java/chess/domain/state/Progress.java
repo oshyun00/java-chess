@@ -14,6 +14,8 @@ public class Progress implements GameState {
     private static final int COMMAND_FUNCTION_INDEX = 0;
     private static final int MOVE_COMMAND_SOURCE_INDEX = 1;
     private static final int MOVE_COMMAND_TARGET_INDEX = 2;
+    private static final int SOURCE_POSITION_INDEX = 0;
+    private static final int TARGET_POSITION_INDEX = 1;
 
     private final ChessBoard chessBoard;
 
@@ -28,7 +30,8 @@ public class Progress implements GameState {
             throw new UnsupportedOperationException("이미 시작한 게임은 다시 시작할 수 없습니다.");
         }
         if (MOVE_COMMAND.equals(command)) {
-            return moveToTarget(inputCommand);
+            List<Position> path = convertToSourceAndTarget(inputCommand);
+            return moveToTarget(path);
         }
         if (END_COMMAND.equals(command)) {
             return new End(chessBoard);
@@ -59,11 +62,15 @@ public class Progress implements GameState {
         return Color.NONE;
     }
 
-    private GameState moveToTarget(List<String> inputCommand) {
-        Position source = Position.from(inputCommand.get(MOVE_COMMAND_SOURCE_INDEX));
-        Position target = Position.from(inputCommand.get(MOVE_COMMAND_TARGET_INDEX));
+    @Override
+    public List<Position> convertToSourceAndTarget(List<String> command) {
+        Position source = Position.from(command.get(MOVE_COMMAND_SOURCE_INDEX));
+        Position target = Position.from(command.get(MOVE_COMMAND_TARGET_INDEX));
+        return List.of(source, target);
+    }
 
-        chessBoard.move(source, target);
+    private GameState moveToTarget(List<Position> path) {
+        chessBoard.move(path.get(SOURCE_POSITION_INDEX), path.get(TARGET_POSITION_INDEX));
         if (chessBoard.isKingCaptured()) {
             return new End(chessBoard);
         }

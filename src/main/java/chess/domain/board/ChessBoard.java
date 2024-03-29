@@ -1,8 +1,5 @@
 package chess.domain.board;
 
-import chess.dao.ChessGameDao;
-import chess.dao.ConnectionGenerator;
-import chess.dao.GameInformationDao;
 import chess.domain.piece.Bishop;
 import chess.domain.piece.Color;
 import chess.domain.piece.King;
@@ -15,10 +12,8 @@ import chess.domain.position.File;
 import chess.domain.position.Position;
 import chess.domain.position.Rank;
 import chess.domain.vo.Score;
-import chess.dto.ChessGameComponentDto;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -26,34 +21,20 @@ public class ChessBoard {
     private static final int SINGLE_KING = 1;
     private static final int DOUBLE_PAWN = 2;
     private static final Score HALF_PAWN_SCORE = new Score(0.5);
-    private static final int NEW_GAME_COMMAND = 0;
 
-    private final GameInformationDao gameInformationDao;
-    private final ChessGameDao chessGameDao;
-    private final Map<Position, Piece> chessBoard = new LinkedHashMap<>();
+    private final Map<Position, Piece> chessBoard;
     private final GameInformation gameInformation;
 
-    public ChessBoard(ConnectionGenerator connectionGenerator) {
-        this.gameInformationDao = new GameInformationDao(connectionGenerator);
-        this.chessGameDao = new ChessGameDao(connectionGenerator);
+    public ChessBoard(GameInformation gameInformation) {
+        chessBoard = new LinkedHashMap<>();
         initializeBlackPieces();
         initializeWhitePieces();
-        saveData();
-        this.gameInformation = bringNewGameInformation();
+        this.gameInformation = gameInformation;
     }
 
-    public ChessBoard(int gameId, ConnectionGenerator connectionGenerator) {
-        this.gameInformationDao = new GameInformationDao(connectionGenerator);
-        this.chessGameDao = new ChessGameDao(connectionGenerator);
-        bringChessBoard(chessGameDao.findById(gameId));
-        this.gameInformation = bringGameInformation(gameId);
-    }
-
-    public static ChessBoard from(int gameId, ConnectionGenerator connectionGenerator) {
-        if (gameId == NEW_GAME_COMMAND) {
-            return new ChessBoard(connectionGenerator);
-        }
-        return new ChessBoard(gameId, connectionGenerator);
+    public ChessBoard(Map<Position, Piece> chessBoard, GameInformation gameInformation) {
+        this.chessBoard = chessBoard;
+        this.gameInformation = gameInformation;
     }
 
     public void move(Position source, Position target) {
@@ -100,37 +81,8 @@ public class ChessBoard {
         return chessBoard;
     }
 
-    public GameInformation getGameInformation() {
-        return gameInformation;
-    }
-
     public int getGameId() {
         return gameInformation.getGameId();
-    }
-
-    private void bringChessBoard(List<ChessGameComponentDto> dtos) {
-        if (dtos.isEmpty()) {
-            throw new IllegalArgumentException("종료됐거나 존재하지 않는 게임입니다.");
-        }
-        for (ChessGameComponentDto dto : dtos) {
-            chessBoard.put(dto.position(), dto.piece());
-        }
-    }
-
-    private GameInformation bringNewGameInformation() {
-        return gameInformationDao.findLatestGame();
-    }
-
-    private GameInformation bringGameInformation(int gameId) {
-        return gameInformationDao.findByGameId(gameId);
-    }
-
-    private void saveData() {
-        gameInformationDao.create();
-        int gameId = gameInformationDao.findLatestGame().getGameId();
-        List<ChessGameComponentDto> dtos = chessBoard.entrySet().stream()
-                .map(entry -> new ChessGameComponentDto(entry.getKey(), entry.getValue(), gameId)).toList();
-        dtos.forEach(chessGameDao::save);
     }
 
     private void validateTurn(Piece sourcePiece) {
@@ -154,10 +106,6 @@ public class ChessBoard {
         chessBoard.put(target, sourcePiece);
         chessBoard.remove(source);
         gameInformation.convertTurn();
-
-        chessGameDao.remove(target);
-        chessGameDao.update(source, target);
-        gameInformationDao.updateTurn(gameInformation);
     }
 
     private double getVerticalPawnCount(File file, Color color) {

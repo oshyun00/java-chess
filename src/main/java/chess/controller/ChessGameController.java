@@ -1,12 +1,13 @@
 package chess.controller;
 
+import static chess.utils.Constant.MOVE_COMMAND;
 import static chess.utils.Constant.STATUS_COMMAND;
 
-import chess.dao.ConnectionGenerator;
-import chess.dao.GameInformationDao;
+import chess.dao.ChessDBService;
 import chess.domain.board.ChessBoard;
 import chess.domain.board.GameInformation;
 import chess.domain.piece.Color;
+import chess.domain.position.Position;
 import chess.domain.state.End;
 import chess.domain.state.GameState;
 import chess.domain.state.Ready;
@@ -21,17 +22,16 @@ import java.util.function.Supplier;
 public class ChessGameController {
     private final InputView inputView;
     private final OutputView outputView;
-    private final GameInformationDao gameInformationDao;
+    private final ChessDBService chessDBService;
 
-    public ChessGameController(InputView inputView, OutputView outputView, GameInformationDao gameInformationDao) {
+    public ChessGameController(InputView inputView, OutputView outputView, ChessDBService chessDBService) {
         this.inputView = inputView;
         this.outputView = outputView;
-        this.gameInformationDao = gameInformationDao;
+        this.chessDBService = chessDBService;
     }
 
     public void run() {
-        ChessBoard chessBoard = prepareChessBoard(
-                ConnectionGenerator.from("src/main/java/chess/resource/application.yml"));
+        ChessBoard chessBoard = prepareChessBoard();
         outputView.printStartMessage(chessBoard.getGameId());
 
         playGame(chessBoard);
@@ -49,18 +49,19 @@ public class ChessGameController {
         handleKingCapture((End) gameState, chessBoard);
     }
 
-    private ChessBoard prepareChessBoard(ConnectionGenerator connectionGenerator) {
-        List<GameInformation> gameInfos = gameInformationDao.findAll();
+    private ChessBoard prepareChessBoard() {
+        List<GameInformation> gameInfos = chessDBService.getAllGameInformation();
         outputView.printGameInformation(gameInfos);
 
         int gameId = repeatUntilSuccess(() -> inputView.readGameId(gameInfos));
-        return ChessBoard.from(gameId, connectionGenerator);
+        return chessDBService.findChessBoard(gameId);
     }
+
 
     private void handleKingCapture(End gameState, ChessBoard chessBoard) {
         if (gameState.isEndByKingCaptured()) {
             printResultByKingCaptured(chessBoard);
-            gameInformationDao.remove(chessBoard.getGameId());
+            chessDBService.removeFinishedGame(chessBoard);
         }
     }
 
@@ -74,6 +75,12 @@ public class ChessGameController {
         if (command.get(0).equals(STATUS_COMMAND)) {
             printCurrentScore(gameState);
             return gameState;
+        }
+        if (command.get(0).equals(MOVE_COMMAND)) {
+            List<Position> sourceAndTarget = gameState.convertToSourceAndTarget(command);
+            GameState updatedGameState = gameState.play(command);
+            chessDBService.updateChessBoard(sourceAndTarget);
+            return updatedGameState;
         }
         return gameState.play(command);
     }

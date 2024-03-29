@@ -2,6 +2,7 @@ package chess.domain.state;
 
 import chess.domain.board.ChessBoard;
 import chess.domain.piece.Color;
+import chess.domain.position.Position;
 import chess.domain.vo.Score;
 import java.util.List;
 
@@ -30,6 +31,11 @@ public class End implements GameState {
     @Override
     public Color getWinnerColor() {
         throw new UnsupportedOperationException("종료된 게임은 승패를 판단할 수 없습니다.");
+    }
+
+    @Override
+    public List<Position> convertToSourceAndTarget(List<String> command) {
+        throw new UnsupportedOperationException("종료된 게임은 이동할 수 없습니다.");
     }
 
     public boolean isEndByKingCaptured() {

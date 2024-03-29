@@ -3,9 +3,9 @@ package chess.domain.state;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import chess.dao.ConnectionGenerator;
 import chess.dao.DaoTest;
 import chess.domain.board.ChessBoard;
+import chess.domain.board.GameInformation;
 import chess.domain.piece.Color;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,8 +17,8 @@ class ReadyTest implements DaoTest {
 
     @BeforeEach
     void setUpChessBoard() {
-        chessBoard = new ChessBoard(1,
-                ConnectionGenerator.from("src/main/java/chess/resource/applicaton-test.yml"));
+        GameInformation gameInformation = new GameInformation(1, Color.WHITE);
+        chessBoard = new ChessBoard(gameInformation);
     }
 
     @BeforeEach

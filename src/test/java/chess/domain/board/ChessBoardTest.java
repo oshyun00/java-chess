@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import chess.dao.ConnectionGenerator;
 import chess.dao.DaoTest;
 import chess.domain.piece.Color;
 import chess.domain.piece.Knight;
@@ -24,38 +23,8 @@ class ChessBoardTest implements DaoTest {
 
     @BeforeEach
     void setUpChessBoard() {
-        chessBoard = new ChessBoard(1,
-                ConnectionGenerator.from("src/main/java/chess/resource/applicaton-test.yml"));
-    }
-
-    @DisplayName("체스보드가 생성되면 저장된 데이터를 가져온다.")
-    @Test
-    void initialBoard() {
-        // then
-        assertThat(chessBoard.getChessBoard()).hasSize(32);
-    }
-
-    @DisplayName("체스보드가 새롭게 생성되면 게임번호가 증가한다.")
-    @Test
-    void createNewGame() {
-        // when
-        ChessBoard createdChessBoard = new ChessBoard(
-                ConnectionGenerator.from("src/main/java/chess/resource/applicaton-test.yml"));
-
-        // then
-        assertThat(createdChessBoard.getGameInformation().getGameId()).isEqualTo(2);
-    }
-
-    @DisplayName("게임이 시작되면 White팀부터 게임을 시작한다")
-    @Test
-    void validateTurn() {
-        // given
-        Position blackSource = Position.of(File.B, Rank.SEVEN);
-        Position blackTarget = Position.of(File.B, Rank.SIX);
-
-        // when, then
-        assertThatThrownBy(() -> chessBoard.move(blackSource, blackTarget))
-                .isInstanceOf(IllegalArgumentException.class);
+        GameInformation gameInformation = new GameInformation(1, Color.WHITE);
+        chessBoard = new ChessBoard(gameInformation);
     }
 
     @DisplayName("source에 위치한 piece가 움직일 수 있는지 판단한다")

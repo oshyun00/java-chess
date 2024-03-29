@@ -1,5 +1,6 @@
 package chess.dao;
 
+import chess.domain.board.ChessBoard;
 import chess.domain.piece.Color;
 import chess.domain.piece.Piece;
 import chess.domain.piece.Type;
@@ -14,6 +15,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 public class ChessGameDao {
@@ -69,6 +71,16 @@ public class ChessGameDao {
             connectionGenerator.handleSQLException(e);
             throw new DBConnectionException("해당 위치에 존재하는 말을 찾을 수 없습니다.");
         }
+    }
+
+    public void saveChessBoard(ChessBoard createdChessBoard) {
+        Map<Position, Piece> chessBoard = createdChessBoard.getChessBoard();
+        int gameId = createdChessBoard.getGameId();
+        List<ChessGameComponentDto> dtos =
+                chessBoard.entrySet().stream()
+                        .map(entry -> new ChessGameComponentDto(entry.getKey(), entry.getValue(), gameId))
+                        .toList();
+        dtos.forEach(this::save);
     }
 
     public void save(ChessGameComponentDto chessGameComponentDto) {
