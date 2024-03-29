@@ -15,16 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChessGameDao {
-    private static final String TABLE_NAME = "chessboard";
-    private static final String DELETE_QUERY = "DELETE FROM " + TABLE_NAME + " WHERE file = ? AND `rank` = ?";
-    private static final String UPDATE_QUERY =
-            "UPDATE " + TABLE_NAME + " SET file = ?, `rank` = ? WHERE file = ? AND `rank` = ?";
-    private static final String SAVE_QUERY =
-            "INSERT INTO " + TABLE_NAME + " (`file`,`rank`,`type`,`color`,`game_id`)VALUES (?,?,?,?,?)";
-    private static final String FIND_BY_ID_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE game_id = ?";
-    private static final String FIND_BY_POSITION_QUERY =
-            "SELECT * FROM " + TABLE_NAME + " WHERE `file` = ? AND `rank` = ?";
-    private static final String FIND_ALL_QUERY = "SELECT * FROM " + TABLE_NAME;
+    private static final String TABLE_NAME = "chess_boards";
 
     private final ConnectionGenerator connectionGenerator;
 
@@ -34,7 +25,7 @@ public class ChessGameDao {
 
     public List<ChessGameComponentDto> findAll() {
         try (final Connection connection = connectionGenerator.getConnection()) {
-            final PreparedStatement statement = connection.prepareStatement(FIND_ALL_QUERY);
+            final PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + TABLE_NAME);
             final ResultSet resultSet = statement.executeQuery();
 
             return getChessGameComponentDtos(resultSet);
@@ -47,7 +38,8 @@ public class ChessGameDao {
 
     public List<ChessGameComponentDto> findById(int gameId) {
         try (final Connection connection = connectionGenerator.getConnection()) {
-            final PreparedStatement statement = connection.prepareStatement(FIND_BY_ID_QUERY);
+            final PreparedStatement statement = connection.prepareStatement(
+                    "SELECT * FROM " + TABLE_NAME + " WHERE game_id = ?");
             statement.setInt(1, gameId);
             ResultSet resultSet = statement.executeQuery();
 
@@ -61,7 +53,8 @@ public class ChessGameDao {
 
     public Piece findPieceByPosition(Position position) {
         try (final Connection connection = connectionGenerator.getConnection()) {
-            final PreparedStatement statement = connection.prepareStatement(FIND_BY_POSITION_QUERY);
+            final PreparedStatement statement = connection.prepareStatement(
+                    "SELECT * FROM " + TABLE_NAME + " WHERE `file` = ? AND `rank` = ?");
             statement.setString(1, position.getFileSymbol());
             statement.setInt(2, position.getRankValue());
             ResultSet resultSet = statement.executeQuery();
@@ -80,7 +73,8 @@ public class ChessGameDao {
 
     public void save(ChessGameComponentDto chessGameComponentDto) {
         try (final Connection connection = connectionGenerator.getConnection()) {
-            final PreparedStatement statement = connection.prepareStatement(SAVE_QUERY);
+            final PreparedStatement statement = connection.prepareStatement(
+                    "INSERT INTO " + TABLE_NAME + " (`file`,`rank`,`type`,`color`,`game_id`)VALUES (?,?,?,?,?)");
             statement.setString(1, chessGameComponentDto.position().getFileSymbol());
             statement.setInt(2, chessGameComponentDto.position().getRankValue());
             statement.setString(3, chessGameComponentDto.piece().identifyType());
@@ -95,7 +89,8 @@ public class ChessGameDao {
 
     public void update(Position source, Position target) {
         try (final Connection connection = connectionGenerator.getConnection()) {
-            final PreparedStatement statement = connection.prepareStatement(UPDATE_QUERY);
+            final PreparedStatement statement = connection.prepareStatement(
+                    "UPDATE " + TABLE_NAME + " SET file = ?, `rank` = ? WHERE file = ? AND `rank` = ?");
             statement.setString(1, target.getFileSymbol());
             statement.setInt(2, target.getRankValue());
             statement.setString(3, source.getFileSymbol());
@@ -109,7 +104,8 @@ public class ChessGameDao {
 
     public void remove(Position target) {
         try (final Connection connection = connectionGenerator.getConnection()) {
-            final PreparedStatement statement = connection.prepareStatement(DELETE_QUERY);
+            final PreparedStatement statement = connection.prepareStatement(
+                    "DELETE FROM " + TABLE_NAME + " WHERE file = ? AND `rank` = ?");
             statement.setString(1, target.getFileSymbol());
             statement.setInt(2, target.getRankValue());
             statement.executeUpdate();
