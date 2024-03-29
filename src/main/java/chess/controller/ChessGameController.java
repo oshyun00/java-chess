@@ -20,9 +20,15 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class ChessGameController {
-    private final InputView inputView = new InputView();
-    private final OutputView outputView = new OutputView();
-    private final GameInformationDao gameInformationDao = new GameInformationDao(new ProductConnectionGenerator());
+    private final InputView inputView;
+    private final OutputView outputView;
+    private final GameInformationDao gameInformationDao;
+
+    public ChessGameController(InputView inputView, OutputView outputView, GameInformationDao gameInformationDao) {
+        this.inputView = inputView;
+        this.outputView = outputView;
+        this.gameInformationDao = gameInformationDao;
+    }
 
     public void run() {
         ChessBoard chessBoard = prepareChessBoard(new ProductConnectionGenerator());
