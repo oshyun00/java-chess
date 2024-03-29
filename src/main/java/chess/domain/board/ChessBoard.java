@@ -62,7 +62,6 @@ public class ChessBoard {
         }
         Piece sourcePiece = chessBoard.get(source);
         validateTurn(sourcePiece);
-        validateTurn(sourcePiece);
 
         if (!canMove(sourcePiece, source, target)) {
             throw new IllegalArgumentException("올바르지 않은 이동입니다.");
@@ -77,7 +76,7 @@ public class ChessBoard {
         return kingCount == SINGLE_KING;
     }
 
-    public Color findWinnerByKing() {
+    public Color findWinnerColorByKing() {
         return chessBoard.values().stream().filter(Piece::isKing)
                 .findFirst()
                 .map(Piece::getColor)
@@ -85,8 +84,10 @@ public class ChessBoard {
     }
 
     public Score calculateScore(Color color) {
-        double scoreValue = chessBoard.values().stream().filter(piece -> piece.isSameColor(color))
-                .mapToDouble(Piece::getScore).sum();
+        double scoreValue = chessBoard.values().stream()
+                .filter(piece -> piece.isSameColor(color))
+                .mapToDouble(Piece::getScore)
+                .sum();
         Score score = new Score(scoreValue);
         for (File file : File.values()) {
             double verticalPawnCount = getVerticalPawnCount(file, color);

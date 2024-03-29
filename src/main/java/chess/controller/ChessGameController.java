@@ -66,7 +66,7 @@ public class ChessGameController {
 
     private void printResultByKingCaptured(ChessBoard chessBoard) {
         outputView.printChessBoard(new ChessBoardDto(chessBoard));
-        outputView.printResultWithKingCaptured(chessBoard.findWinnerByKing());
+        outputView.printResultWithKingCaptured(chessBoard.findWinnerColorByKing());
     }
 
     private GameState playEachTurn(GameState gameState) {

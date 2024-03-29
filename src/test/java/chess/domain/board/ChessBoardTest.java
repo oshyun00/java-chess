@@ -122,7 +122,7 @@ class ChessBoardTest implements DaoTest {
         chessBoard.getChessBoard().remove(blackKingPosition);
 
         // when
-        Color result = chessBoard.findWinnerByKing();
+        Color result = chessBoard.findWinnerColorByKing();
 
         // then
         assertThat(result).isEqualTo(Color.WHITE);
