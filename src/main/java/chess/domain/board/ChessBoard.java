@@ -81,6 +81,10 @@ public class ChessBoard {
         return chessBoard;
     }
 
+    public GameInformation getGameInformation() {
+        return gameInformation;
+    }
+
     public int getGameId() {
         return gameInformation.getGameId();
     }

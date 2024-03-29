@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class ChessGameController {
+    private static final int COMMAND_TYPE_INDEX = 0;
+
     private final InputView inputView;
     private final OutputView outputView;
     private final ChessDBService chessDBService;
@@ -39,10 +41,11 @@ public class ChessGameController {
 
     private void playGame(ChessBoard chessBoard) {
         GameState gameState = new Ready(chessBoard);
+        GameInformation gameInformation = chessBoard.getGameInformation();
 
         while (!gameState.isEnd()) {
             GameState currentGameState = gameState;
-            gameState = repeatUntilSuccess(() -> playEachTurn(currentGameState));
+            gameState = repeatUntilSuccess(() -> playEachTurn(currentGameState, gameInformation));
 
             printChessBoardInProgress(gameState, chessBoard);
         }
@@ -57,7 +60,6 @@ public class ChessGameController {
         return chessDBService.findChessBoard(gameId);
     }
 
-
     private void handleKingCapture(End gameState, ChessBoard chessBoard) {
         if (gameState.isEndByKingCaptured()) {
             printResultByKingCaptured(chessBoard);
@@ -70,16 +72,16 @@ public class ChessGameController {
         outputView.printResultWithKingCaptured(chessBoard.findWinnerColorByKing());
     }
 
-    private GameState playEachTurn(GameState gameState) {
+    private GameState playEachTurn(GameState gameState, GameInformation gameInformation) {
         List<String> command = inputView.readCommand();
-        if (command.get(0).equals(STATUS_COMMAND)) {
+        if (command.get(COMMAND_TYPE_INDEX).equals(STATUS_COMMAND)) {
             printCurrentScore(gameState);
             return gameState;
         }
-        if (command.get(0).equals(MOVE_COMMAND)) {
+        if (command.get(COMMAND_TYPE_INDEX).equals(MOVE_COMMAND)) {
             List<Position> sourceAndTarget = gameState.convertToSourceAndTarget(command);
             GameState updatedGameState = gameState.play(command);
-            chessDBService.updateChessBoard(sourceAndTarget);
+            chessDBService.updateChessBoard(sourceAndTarget, gameInformation);
             return updatedGameState;
         }
         return gameState.play(command);
