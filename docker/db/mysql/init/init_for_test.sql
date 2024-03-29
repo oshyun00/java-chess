@@ -1,16 +1,16 @@
 USE `chess-test`;
 
-DROP TABLE IF EXISTS chessboard;
+DROP TABLE IF EXISTS chess_boards;
 DROP TABLE IF EXISTS game_information;
 
 CREATE TABLE IF NOT EXISTS game_information
 (
-    game_id            int        NOT NULL AUTO_INCREMENT,
+    id                 int        NOT NULL AUTO_INCREMENT,
     current_turn_color VARCHAR(5) NOT NULL,
-    PRIMARY KEY (game_id)
+    PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS chessboard
+CREATE TABLE IF NOT EXISTS chess_boards
 (
     id      int         NOT NULL AUTO_INCREMENT,
     file    VARCHAR(64) NOT NULL,
@@ -19,12 +19,12 @@ CREATE TABLE IF NOT EXISTS chessboard
     color   VARCHAR(5)  NOT NULL,
     game_id int         NOT NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY (game_id) REFERENCES game_information (game_id) ON DELETE CASCADE
+    FOREIGN KEY (game_id) REFERENCES game_information (id) ON DELETE CASCADE
 );
 
 INSERT INTO game_information (current_turn_color) VALUE ('WHITE');
 
-INSERT INTO chessboard (file, `rank`, type, color, game_id)
+INSERT INTO chess_boards (file, `rank`, type, color, game_id)
 VALUES ('a', 1, 'ROOK', 'WHITE', 1),
        ('b', 1, 'KNIGHT', 'WHITE', 1),
        ('c', 1, 'BISHOP', 'WHITE', 1),

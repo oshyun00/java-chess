@@ -21,7 +21,7 @@ public class GameInformationDao {
     private static List<GameInformation> convertToGameInformation(ResultSet resultSet) throws SQLException {
         final List<GameInformation> gameInfos = new ArrayList<>();
         while (resultSet.next()) {
-            int gameId = resultSet.getInt("game_id");
+            int gameId = resultSet.getInt("id");
             Color color = Color.convertToColor(resultSet.getString("current_turn_color"));
             GameInformation gameInformation = new GameInformation(gameId, color);
 
@@ -45,7 +45,7 @@ public class GameInformationDao {
     public GameInformation findByGameId(int gameId) {
         try (final Connection connection = connectionGenerator.getConnection()) {
             final PreparedStatement statement = connection.prepareStatement(
-                    "SELECT * FROM " + TABLE_NAME + " WHERE `game_id` = ?");
+                    "SELECT * FROM " + TABLE_NAME + " WHERE `id` = ?");
             statement.setInt(1, gameId);
             ResultSet resultSet = statement.executeQuery();
 
@@ -62,11 +62,11 @@ public class GameInformationDao {
     public GameInformation findLatestGame() {
         try (final Connection connection = connectionGenerator.getConnection()) {
             final PreparedStatement statement = connection.prepareStatement(
-                    "SELECT * FROM " + TABLE_NAME + " ORDER BY game_id DESC LIMIT 1");
+                    "SELECT * FROM " + TABLE_NAME + " ORDER BY id DESC LIMIT 1");
             final ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
-                int gameId = resultSet.getInt("game_id");
+                int gameId = resultSet.getInt("id");
                 Color color = Color.convertToColor(resultSet.getString("current_turn_color"));
                 return new GameInformation(gameId, color);
             }
@@ -79,7 +79,7 @@ public class GameInformationDao {
     public void remove(int gameId) {
         try (final Connection connection = connectionGenerator.getConnection()) {
             final PreparedStatement statement = connection.prepareStatement(
-                    "DELETE FROM " + TABLE_NAME + " WHERE game_id = ?");
+                    "DELETE FROM " + TABLE_NAME + " WHERE id = ?");
             statement.setInt(1, gameId);
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -101,7 +101,7 @@ public class GameInformationDao {
     public void updateTurn(GameInformation gameInformation) {
         try (final Connection connection = connectionGenerator.getConnection()) {
             final PreparedStatement statement = connection.prepareStatement(
-                    "UPDATE " + TABLE_NAME + " SET current_turn_color = ? WHERE game_id = ?");
+                    "UPDATE " + TABLE_NAME + " SET current_turn_color = ? WHERE id = ?");
             statement.setString(1, gameInformation.getCurentTurnColor().name());
             statement.setInt(2, gameInformation.getGameId());
             statement.executeUpdate();

@@ -8,12 +8,12 @@ USE chess;
 
 CREATE TABLE IF NOT EXISTS game_information
 (
-    game_id            int        NOT NULL AUTO_INCREMENT,
+    id                 int        NOT NULL AUTO_INCREMENT,
     current_turn_color VARCHAR(5) NOT NULL,
-    PRIMARY KEY (game_id)
+    PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS chessboard
+CREATE TABLE IF NOT EXISTS chess_boards
 (
     id      int         NOT NULL AUTO_INCREMENT,
     file    VARCHAR(64) NOT NULL,
@@ -22,5 +22,5 @@ CREATE TABLE IF NOT EXISTS chessboard
     color   VARCHAR(5)  NOT NULL,
     game_id int         NOT NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY (game_id) REFERENCES game_information (game_id) ON DELETE CASCADE
+    FOREIGN KEY (game_id) REFERENCES game_information (id) ON DELETE CASCADE
 );
