@@ -12,6 +12,7 @@ import chess.domain.position.Position;
 import chess.domain.position.Rank;
 import chess.dto.ChessGameComponentDto;
 import java.util.List;
+import java.util.NoSuchElementException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -79,7 +80,7 @@ class ChessGameDaoTest implements DaoTest {
         assertAll(
                 () -> assertThat(targetPiece).isInstanceOf(Rook.class),
                 () -> assertThatThrownBy(() -> chessGameDao.findPieceByPosition(source))
-                        .isInstanceOf(IllegalArgumentException.class));
+                        .isInstanceOf(NoSuchElementException.class));
     }
 
     @DisplayName("piece가 제거되면 데이터베이스에서 해당 정보를 삭제한다.")
@@ -93,6 +94,6 @@ class ChessGameDaoTest implements DaoTest {
 
         // then
         assertThatThrownBy(() -> chessGameDao.findPieceByPosition(target))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(NoSuchElementException.class);
     }
 }

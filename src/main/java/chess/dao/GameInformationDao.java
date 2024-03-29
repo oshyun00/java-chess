@@ -2,12 +2,14 @@ package chess.dao;
 
 import chess.domain.board.GameInformation;
 import chess.domain.piece.Color;
+import chess.exception.DBConnectionException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class GameInformationDao {
     private static final String TABLE_NAME = "game_information";
@@ -18,18 +20,6 @@ public class GameInformationDao {
         this.connectionGenerator = connectionGenerator;
     }
 
-    private static List<GameInformation> convertToGameInformation(ResultSet resultSet) throws SQLException {
-        final List<GameInformation> gameInfos = new ArrayList<>();
-        while (resultSet.next()) {
-            int gameId = resultSet.getInt("id");
-            Color color = Color.convertToColor(resultSet.getString("current_turn_color"));
-            GameInformation gameInformation = new GameInformation(gameId, color);
-
-            gameInfos.add(gameInformation);
-        }
-        return gameInfos;
-    }
-
     public List<GameInformation> findAll() {
         try (final Connection connection = connectionGenerator.getConnection()) {
             final PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + TABLE_NAME);
@@ -37,9 +27,9 @@ public class GameInformationDao {
 
             return convertToGameInformation(resultSet);
         } catch (SQLException e) {
-            handleSQLException(e);
+            connectionGenerator.handleSQLException(e);
+            throw new DBConnectionException("진행중인 게임을 찾을 수 없습니다.");
         }
-        throw new IllegalArgumentException("진행중인 게임이 존재하지 않습니다.");
     }
 
     public GameInformation findByGameId(int gameId) {
@@ -53,10 +43,11 @@ public class GameInformationDao {
                 Color color = Color.convertToColor(resultSet.getString("current_turn_color"));
                 return new GameInformation(gameId, color);
             }
+            throw new NoSuchElementException("id에 해당되는 게임 정보를 찾을 수 없습니다.");
         } catch (SQLException e) {
-            handleSQLException(e);
+            connectionGenerator.handleSQLException(e);
+            throw new DBConnectionException("id에 해당되는 게임 정보를 찾을 수 없습니다.");
         }
-        throw new IllegalArgumentException("존재하지 않는 게임 번호입니다.");
     }
 
     public GameInformation findLatestGame() {
@@ -70,10 +61,11 @@ public class GameInformationDao {
                 Color color = Color.convertToColor(resultSet.getString("current_turn_color"));
                 return new GameInformation(gameId, color);
             }
+            throw new NoSuchElementException("마지막 게임을 찾을 수 없습니다.");
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            connectionGenerator.handleSQLException(e);
+            throw new DBConnectionException("마지막 게임을 찾을 수 없습니다.");
         }
-        throw new IllegalArgumentException("진행중인 게임이 존재하지 않습니다.");
     }
 
     public void remove(int gameId) {
@@ -83,7 +75,8 @@ public class GameInformationDao {
             statement.setInt(1, gameId);
             statement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            connectionGenerator.handleSQLException(e);
+            throw new DBConnectionException("id에 해당되는 게임 정보를 삭제할 수 없습니다.");
         }
     }
 
@@ -94,7 +87,8 @@ public class GameInformationDao {
             statement.setString(1, Color.WHITE.name());
             statement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            connectionGenerator.handleSQLException(e);
+            throw new DBConnectionException("새로운 게임을 생성할 수 없습니다.");
         }
     }
 
@@ -106,12 +100,20 @@ public class GameInformationDao {
             statement.setInt(2, gameInformation.getGameId());
             statement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            connectionGenerator.handleSQLException(e);
+            throw new DBConnectionException("게임 정보를 업데이트 할 수 없습니다.");
         }
     }
 
-    private void handleSQLException(SQLException e) {
-        System.err.println("DB 연결 오류:" + e.getMessage());
-        e.printStackTrace();
+    private List<GameInformation> convertToGameInformation(ResultSet resultSet) throws SQLException {
+        final List<GameInformation> gameInfos = new ArrayList<>();
+        while (resultSet.next()) {
+            int gameId = resultSet.getInt("id");
+            Color color = Color.convertToColor(resultSet.getString("current_turn_color"));
+            GameInformation gameInformation = new GameInformation(gameId, color);
+
+            gameInfos.add(gameInformation);
+        }
+        return gameInfos;
     }
 }

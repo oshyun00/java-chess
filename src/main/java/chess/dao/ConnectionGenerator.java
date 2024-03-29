@@ -1,6 +1,7 @@
 package chess.dao;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public interface ConnectionGenerator {
     String SERVER = "localhost:13306";
@@ -9,4 +10,9 @@ public interface ConnectionGenerator {
     String PASSWORD = "root";
 
     Connection getConnection();
+
+    default void handleSQLException(SQLException e) {
+        System.err.println("DB 연결 오류:" + e.getMessage());
+        e.printStackTrace();
+    }
 }

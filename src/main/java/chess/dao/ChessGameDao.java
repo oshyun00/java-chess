@@ -7,12 +7,14 @@ import chess.domain.position.File;
 import chess.domain.position.Position;
 import chess.domain.position.Rank;
 import chess.dto.ChessGameComponentDto;
+import chess.exception.DBConnectionException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class ChessGameDao {
     private static final String TABLE_NAME = "chess_boards";
@@ -30,10 +32,9 @@ public class ChessGameDao {
 
             return getChessGameComponentDtos(resultSet);
         } catch (SQLException e) {
-            System.err.println("DB 연결 오류:" + e.getMessage());
-            e.printStackTrace();
+            connectionGenerator.handleSQLException(e);
+            throw new DBConnectionException("진행중인 게임 데이터를 가져올 수 없습니다.");
         }
-        return new ArrayList<>();
     }
 
     public List<ChessGameComponentDto> findById(int gameId) {
@@ -45,10 +46,9 @@ public class ChessGameDao {
 
             return getChessGameComponentDtos(resultSet);
         } catch (SQLException e) {
-            System.err.println("DB 연결 오류:" + e.getMessage());
-            e.printStackTrace();
+            connectionGenerator.handleSQLException(e);
+            throw new DBConnectionException("id에 해당되는 게임 내역을 가져올 수 없습니다.");
         }
-        return new ArrayList<>();
     }
 
     public Piece findPieceByPosition(Position position) {
@@ -64,11 +64,11 @@ public class ChessGameDao {
                 Color color = Color.convertToColor(resultSet.getString("color"));
                 return type.generatePiece(color);
             }
+            throw new NoSuchElementException("해당 위치에 존재하는 말을 찾을 수 없습니다.");
         } catch (SQLException e) {
-            System.err.println("DB 연결 오류:" + e.getMessage());
-            e.printStackTrace();
+            connectionGenerator.handleSQLException(e);
+            throw new DBConnectionException("해당 위치에 존재하는 말을 찾을 수 없습니다.");
         }
-        throw new IllegalArgumentException("해당 위치에 존재하는 말이 없습니다.");
     }
 
     public void save(ChessGameComponentDto chessGameComponentDto) {
@@ -82,8 +82,8 @@ public class ChessGameDao {
             statement.setInt(5, chessGameComponentDto.gameId());
             statement.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("DB 연결 오류:" + e.getMessage());
-            e.printStackTrace();
+            connectionGenerator.handleSQLException(e);
+            throw new DBConnectionException("데이터를 저장할 수 없습니다.");
         }
     }
 
@@ -97,8 +97,8 @@ public class ChessGameDao {
             statement.setInt(4, source.getRankValue());
             statement.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("DB 연결 오류:" + e.getMessage());
-            e.printStackTrace();
+            connectionGenerator.handleSQLException(e);
+            throw new DBConnectionException("해당 위치의 게임 정보를 업데이트 할 수 없습니다.");
         }
     }
 
@@ -110,8 +110,8 @@ public class ChessGameDao {
             statement.setInt(2, target.getRankValue());
             statement.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("DB 연결 오류:" + e.getMessage());
-            e.printStackTrace();
+            connectionGenerator.handleSQLException(e);
+            throw new DBConnectionException("해당 위치의 말을 제거할 수 없습니다.");
         }
     }
 
