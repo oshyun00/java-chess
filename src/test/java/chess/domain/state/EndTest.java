@@ -3,8 +3,8 @@ package chess.domain.state;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import chess.dao.ConnectionGenerator;
 import chess.dao.DaoTest;
-import chess.dao.TestConnectionGenerator;
 import chess.domain.board.ChessBoard;
 import chess.domain.piece.Color;
 import java.util.List;
@@ -17,7 +17,8 @@ class EndTest implements DaoTest {
 
     @BeforeEach
     void setUpChessBoard() {
-        chessBoard = new ChessBoard(1, new TestConnectionGenerator());
+        chessBoard = new ChessBoard(1,
+                ConnectionGenerator.from("src/main/java/chess/resource/applicaton-test.yml"));
     }
 
     @DisplayName("End는 command로 \"start\"를 받으면 예외가 발생한다.")

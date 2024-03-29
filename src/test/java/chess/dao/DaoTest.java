@@ -1,5 +1,6 @@
 package chess.dao;
 
+import chess.exception.DBConnectionException;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -29,11 +30,13 @@ public interface DaoTest {
         } catch (IOException | SQLException e) {
             System.err.println("DB 연결 오류:" + e.getMessage());
             e.printStackTrace();
+            throw new DBConnectionException("테스트 데이터베이스 초기화에 실패하였습니다.");
         }
     }
 
     private void executeInitScript() throws IOException, SQLException {
-        TestConnectionGenerator testConnectionGenerator = new TestConnectionGenerator();
+        ConnectionGenerator testConnectionGenerator = ConnectionGenerator.from(
+                "src/main/java/chess/resource/applicaton-test.yml");
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName));
              Connection connection = testConnectionGenerator.getConnection();
              Statement statement = connection.createStatement()) {

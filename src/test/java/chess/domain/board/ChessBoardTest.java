@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+import chess.dao.ConnectionGenerator;
 import chess.dao.DaoTest;
-import chess.dao.TestConnectionGenerator;
 import chess.domain.piece.Color;
 import chess.domain.piece.Knight;
 import chess.domain.piece.Pawn;
@@ -24,7 +24,8 @@ class ChessBoardTest implements DaoTest {
 
     @BeforeEach
     void setUpChessBoard() {
-        chessBoard = new ChessBoard(1, new TestConnectionGenerator());
+        chessBoard = new ChessBoard(1,
+                ConnectionGenerator.from("src/main/java/chess/resource/applicaton-test.yml"));
     }
 
     @DisplayName("체스보드가 생성되면 저장된 데이터를 가져온다.")
@@ -38,7 +39,8 @@ class ChessBoardTest implements DaoTest {
     @Test
     void createNewGame() {
         // when
-        ChessBoard createdChessBoard = new ChessBoard(new TestConnectionGenerator());
+        ChessBoard createdChessBoard = new ChessBoard(
+                ConnectionGenerator.from("src/main/java/chess/resource/applicaton-test.yml"));
 
         // then
         assertThat(createdChessBoard.getGameInformation().getGameId()).isEqualTo(2);

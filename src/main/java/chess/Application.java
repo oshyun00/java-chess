@@ -1,8 +1,8 @@
 package chess;
 
 import chess.controller.ChessGameController;
+import chess.dao.ConnectionGenerator;
 import chess.dao.GameInformationDao;
-import chess.dao.ProductConnectionGenerator;
 import chess.view.InputView;
 import chess.view.OutputView;
 
@@ -11,7 +11,8 @@ public class Application {
         ChessGameController chessGameController = new ChessGameController(
                 new InputView(),
                 new OutputView(),
-                new GameInformationDao(new ProductConnectionGenerator())
+                new GameInformationDao(
+                        ConnectionGenerator.from("src/main/java/chess/resource/application.yml"))
         );
         chessGameController.run();
     }

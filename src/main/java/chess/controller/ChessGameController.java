@@ -4,7 +4,6 @@ import static chess.utils.Constant.STATUS_COMMAND;
 
 import chess.dao.ConnectionGenerator;
 import chess.dao.GameInformationDao;
-import chess.dao.ProductConnectionGenerator;
 import chess.domain.board.ChessBoard;
 import chess.domain.board.GameInformation;
 import chess.domain.piece.Color;
@@ -31,7 +30,8 @@ public class ChessGameController {
     }
 
     public void run() {
-        ChessBoard chessBoard = prepareChessBoard(new ProductConnectionGenerator());
+        ChessBoard chessBoard = prepareChessBoard(
+                ConnectionGenerator.from("src/main/java/chess/resource/application.yml"));
         outputView.printStartMessage(chessBoard.getGameId());
 
         playGame(chessBoard);
