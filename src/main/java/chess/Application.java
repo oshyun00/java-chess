@@ -9,13 +9,13 @@ import chess.view.InputView;
 import chess.view.OutputView;
 
 public class Application {
-    private static final String fileName = "src/main/java/chess/resource/application.yml";
+    private static final String CONFIGURATION_FILE_NAME = "src/main/java/chess/resource/application.yml";
 
     public static void main(String[] args) {
         ChessGameController chessGameController = new ChessGameController(new InputView(), new OutputView(),
                 new ChessDBService(
-                        new GameInformationDao(ConnectionGenerator.from(fileName)),
-                        new ChessGameDao(ConnectionGenerator.from(fileName))
+                        new GameInformationDao(ConnectionGenerator.from(CONFIGURATION_FILE_NAME)),
+                        new ChessGameDao(ConnectionGenerator.from(CONFIGURATION_FILE_NAME))
                 ));
         chessGameController.run();
     }

@@ -10,7 +10,8 @@ import java.sql.Statement;
 import org.junit.jupiter.api.BeforeEach;
 
 public interface DaoTest {
-    String fileName = "docker/db/mysql/init/init_for_test.sql";
+    String TEST_CONFIGURATION_FILE_NAME = "src/main/java/chess/resource/applicaton-test.yml";
+    String TEST_INIT_DATA_FILE_NAME = "docker/db/mysql/init/init_for_test.sql";
 
     /*
      * 초기 체스판 상태
@@ -35,9 +36,8 @@ public interface DaoTest {
     }
 
     private void executeInitScript() throws IOException, SQLException {
-        ConnectionGenerator testConnectionGenerator = ConnectionGenerator.from(
-                "src/main/java/chess/resource/applicaton-test.yml");
-        try (BufferedReader reader = new BufferedReader(new FileReader(fileName));
+        ConnectionGenerator testConnectionGenerator = ConnectionGenerator.from(TEST_CONFIGURATION_FILE_NAME);
+        try (BufferedReader reader = new BufferedReader(new FileReader(TEST_INIT_DATA_FILE_NAME));
              Connection connection = testConnectionGenerator.getConnection();
              Statement statement = connection.createStatement()) {
             String line;
@@ -51,10 +51,10 @@ public interface DaoTest {
     private void handleScriptLine(String line, StringBuilder scriptContent, Statement statement) throws SQLException {
         if (!line.trim().isEmpty() && !line.trim().startsWith("#")) {
             scriptContent.append(line).append("\n");
-            if (line.trim().endsWith(";")) {
-                statement.execute(scriptContent.toString());
-                scriptContent.setLength(0);
-            }
+        }
+        if (line.trim().endsWith(";")) {
+            statement.execute(scriptContent.toString());
+            scriptContent.setLength(0);
         }
     }
 }

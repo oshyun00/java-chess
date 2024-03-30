@@ -22,8 +22,7 @@ class ChessGameDaoTest implements DaoTest {
 
     @BeforeEach
     void initializeChessGameDao() {
-        chessGameDao = new ChessGameDao(
-                ConnectionGenerator.from("src/main/java/chess/resource/applicaton-test.yml"));
+        chessGameDao = new ChessGameDao(ConnectionGenerator.from(TEST_CONFIGURATION_FILE_NAME));
     }
 
     @DisplayName("데이터베이스에서 전체 데이터를 조회한다.")

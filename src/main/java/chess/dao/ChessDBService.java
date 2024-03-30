@@ -11,6 +11,8 @@ import java.util.Map;
 
 public class ChessDBService {
     private static final int NEW_GAME_COMMAND = 0;
+    private static final int SOURCE_POSITION_INDEX = 0;
+    private static final int TARGET_POSITION_INDEX = 1;
 
     private final GameInformationDao gameInformationDao;
     private final ChessGameDao chessGameDao;
@@ -29,7 +31,7 @@ public class ChessDBService {
     }
 
     public void updateChessBoard(List<Position> movedPath, GameInformation gameInformation) {
-        chessGameDao.update(movedPath.get(0), movedPath.get(1));
+        chessGameDao.update(movedPath.get(SOURCE_POSITION_INDEX), movedPath.get(TARGET_POSITION_INDEX));
         gameInformationDao.updateTurn(gameInformation);
     }
 
