@@ -3,6 +3,7 @@ package chess.view;
 import static chess.utils.Constant.END_COMMAND;
 import static chess.utils.Constant.MOVE_COMMAND;
 import static chess.utils.Constant.START_COMMAND;
+import static chess.utils.Constant.STATUS_COMMAND;
 
 import chess.domain.board.GameInformation;
 import chess.domain.piece.Color;
@@ -33,7 +34,9 @@ public class OutputView {
                 "> " + gameId + "번 게임을 시작합니다." + NEW_LINE
                         + "> 게임 시작 : " + START_COMMAND + NEW_LINE
                         + "> 게임 종료 : " + END_COMMAND + NEW_LINE
-                        + "> 게임 이동 : " + MOVE_COMMAND + " source위치 target위치 - 예. " + MOVE_COMMAND + " b2 b3"
+                        + "> 게임 이동 : " + MOVE_COMMAND + " source위치 target위치 - 예. "
+                        + MOVE_COMMAND + " b2 b3" + NEW_LINE
+                        + "> 게임 상태 확인 : " + STATUS_COMMAND
         );
     }
 
