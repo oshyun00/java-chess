@@ -62,7 +62,7 @@ public class ChessBoardDao {
         }
     }
 
-    public void saveChessBoard(ChessBoard createdChessBoard, Connection connection) {
+    public ChessBoard create(ChessBoard createdChessBoard, Connection connection) {
         Map<Position, Piece> chessBoard = createdChessBoard.getChessBoard();
         String gameName = createdChessBoard.getGameName();
         List<ChessGameComponentDto> dtos =
@@ -70,6 +70,7 @@ public class ChessBoardDao {
                         .map(entry -> new ChessGameComponentDto(entry.getKey(), entry.getValue(), gameName))
                         .toList();
         dtos.forEach(dto -> save(dto, connection));
+        return createdChessBoard;
     }
 
     public void update(Position source, Position target, Connection connection) {

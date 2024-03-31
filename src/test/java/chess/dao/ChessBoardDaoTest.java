@@ -77,7 +77,7 @@ class ChessBoardDaoTest implements DaoTest {
         ChessBoard chessBoard = new ChessBoard(gameInformation);
 
         // when
-        chessBoardDao.saveChessBoard(chessBoard, connection);
+        chessBoardDao.create(chessBoard, connection);
 
         // then
         assertThat(chessBoardDao.findAll(connection)).hasSize(64);

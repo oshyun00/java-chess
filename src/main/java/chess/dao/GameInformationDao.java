@@ -51,13 +51,14 @@ public class GameInformationDao {
         }
     }
 
-    public void create(GameInformation gameInformation, Connection connection) {
+    public GameInformation create(GameInformation gameInformation, Connection connection) {
         try {
             final PreparedStatement statement = connection.prepareStatement(
                     "INSERT INTO game_information (game_name, current_turn_color) VALUES (?, ?)");
             statement.setString(1, gameInformation.getGameName());
             statement.setString(2, Color.WHITE.name());
             statement.executeUpdate();
+            return gameInformation;
         } catch (SQLException e) {
             throw new DBConnectionException("새로운 게임을 생성할 수 없습니다.");
         }

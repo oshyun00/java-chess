@@ -102,10 +102,9 @@ public class ChessService {
     }
 
     private ChessBoard createNewChessBoard(GameInformation gameInformation, Connection connection) {
-        gameInformationDao.create(gameInformation, connection);
-        ChessBoard createdChessBoard = new ChessBoard(gameInformation);
-        chessBoardDao.saveChessBoard(createdChessBoard, connection);
-        return createdChessBoard;
+        GameInformation createdGameInformation = gameInformationDao.create(gameInformation, connection);
+        ChessBoard createdChessBoard = new ChessBoard(createdGameInformation);
+        return chessBoardDao.create(createdChessBoard, connection);
     }
 
     private ChessBoard getSavedChessBoard(String gameName, Connection connection) {
