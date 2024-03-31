@@ -5,15 +5,14 @@ import static chess.utils.Constant.MOVE_COMMAND;
 import static chess.utils.Constant.START_COMMAND;
 import static chess.utils.Constant.STATUS_COMMAND;
 
-import chess.domain.board.GameInformation;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
 public class InputView {
+    public static final int MAX_GAME_NAME_LENGTH = 10;
     private static final String MOVE_COMMAND_FORMAT = "^" + MOVE_COMMAND + " [a-h][1-8] [a-h][1-8]$";
     private static final String DELIMITER = " ";
-
     private final Scanner scanner = new Scanner(System.in);
 
     public List<String> readCommand() {
@@ -27,13 +26,12 @@ public class InputView {
         throw new IllegalArgumentException("잘못된 입력입니다.");
     }
 
-    public int readGameId(List<GameInformation> gameInfos) {
+    public String readGameName() {
         String input = scanner.nextLine();
-        int gameId = convertToInt(input);
-        if (isAppropriatedGameId(gameInfos, gameId)) {
-            return gameId;
+        if (input.isEmpty() || input.isBlank() || input.length() > MAX_GAME_NAME_LENGTH) {
+            throw new IllegalArgumentException("게임 이름은 공백일 수 없으며 " + MAX_GAME_NAME_LENGTH + "자 이내이어야합니다.");
         }
-        throw new IllegalArgumentException("존재하지 않는 게임 번호입니다.");
+        return input;
     }
 
     private boolean isMoveCommand(String input) {
@@ -42,20 +40,5 @@ public class InputView {
 
     private List<String> convertMoveCommand(String input) {
         return Arrays.asList(input.split(DELIMITER));
-    }
-
-    private boolean isAppropriatedGameId(List<GameInformation> gameInfos, int gameId) {
-        if (gameId == 0) {
-            return true;
-        }
-        return gameInfos.stream().map(GameInformation::getGameId).toList().contains(gameId);
-    }
-
-    private int convertToInt(String input) {
-        try {
-            return Integer.parseInt(input);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("게임 번호는 숫자이어야합니다.");
-        }
     }
 }

@@ -32,14 +32,14 @@ class GameInformationDaoTest implements DaoTest {
         assertThat(dtos.size()).isEqualTo(1);
     }
 
-    @DisplayName("gameId에 해당되는 게임 정보를 찾아온다.")
+    @DisplayName("gameName에 해당되는 게임 정보를 찾아온다.")
     @Test
     void findInformationByGameId() {
         // given
-        int gameId = 1;
+        String gameName = "ella";
 
         // when
-        GameInformation gameInformation = gameInformationDao.findByGameId(gameId, connection);
+        GameInformation gameInformation = gameInformationDao.findByGameName(gameName, connection);
 
         // then
         assertThat(gameInformation.getCurentTurnColor()).isEqualTo(Color.WHITE);
@@ -49,25 +49,25 @@ class GameInformationDaoTest implements DaoTest {
     @Test
     void updateTurn() {
         // given
-        int gameId = 1;
-        GameInformation gameInformation = new GameInformation(gameId, Color.BLACK);
+        String gameName = "ella";
+        GameInformation gameInformation = new GameInformation(gameName, Color.BLACK);
 
         // when
         gameInformationDao.updateTurn(gameInformation, connection);
-        GameInformation updatedInformation = gameInformationDao.findByGameId(gameId, connection);
+        GameInformation updatedInformation = gameInformationDao.findByGameName(gameName, connection);
 
         // then
-        assertThat(gameInformation.getCurentTurnColor()).isEqualTo(Color.BLACK);
+        assertThat(updatedInformation.getCurentTurnColor()).isEqualTo(Color.BLACK);
     }
 
-    @DisplayName("gameId에 해당되는 게임을 삭제한다.")
+    @DisplayName("게임 이름에 해당되는 게임을 삭제한다.")
     @Test
     void remove() {
         // given
-        int gameId = 1;
+        String gameName = "ella";
 
         // when
-        gameInformationDao.remove(1, connection);
+        gameInformationDao.remove(gameName, connection);
         List<GameInformation> gameInfos = gameInformationDao.findAll(connection);
 
         // then
@@ -77,8 +77,11 @@ class GameInformationDaoTest implements DaoTest {
     @DisplayName("데이터베이스에 새로운 게임 데이터를 저장한다.")
     @Test
     void save() {
+        // given
+        GameInformation gameInformation = new GameInformation("ash");
+
         // when
-        gameInformationDao.create(connection);
+        gameInformationDao.create(gameInformation, connection);
         List<GameInformation> gameInfos = gameInformationDao.findAll(connection);
 
         // then

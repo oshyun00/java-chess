@@ -34,7 +34,7 @@ public class ChessGameController {
 
     public void run() {
         ChessBoard chessBoard = prepareChessBoard();
-        outputView.printStartMessage(chessBoard.getGameId());
+        outputView.printStartMessage(chessBoard.getGameName());
 
         playGame(chessBoard);
     }
@@ -56,8 +56,8 @@ public class ChessGameController {
         List<GameInformation> gameInfos = chessService.getAllGameInformation();
         outputView.printGameInformation(gameInfos);
 
-        int gameId = repeatUntilSuccess(() -> inputView.readGameId(gameInfos));
-        return chessService.findChessBoard(gameId);
+        String gameName = repeatUntilSuccess(inputView::readGameName);
+        return chessService.loadChessBoard(gameInfos, gameName);
     }
 
     private void handleKingCapture(End gameState, ChessBoard chessBoard) {

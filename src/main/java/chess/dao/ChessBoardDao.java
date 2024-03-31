@@ -30,16 +30,16 @@ public class ChessBoardDao {
         }
     }
 
-    public List<ChessGameComponentDto> findById(int gameId, Connection connection) {
+    public List<ChessGameComponentDto> findByGameName(String gameName, Connection connection) {
         try {
             final PreparedStatement statement = connection.prepareStatement(
-                    "SELECT * FROM chess_boards WHERE game_id = ?");
-            statement.setInt(1, gameId);
-            ResultSet resultSet = statement.executeQuery();
+                    "SELECT * FROM chess_boards WHERE game_name = ?");
+            statement.setString(1, gameName);
+            final ResultSet resultSet = statement.executeQuery();
 
             return getChessGameComponentDtos(resultSet);
         } catch (SQLException e) {
-            throw new DBConnectionException("id에 해당되는 게임 내역을 가져올 수 없습니다.");
+            throw new DBConnectionException("게임 이름에 해당되는 게임 내역을 가져올 수 없습니다.");
         }
     }
 
@@ -64,10 +64,10 @@ public class ChessBoardDao {
 
     public void saveChessBoard(ChessBoard createdChessBoard, Connection connection) {
         Map<Position, Piece> chessBoard = createdChessBoard.getChessBoard();
-        int gameId = createdChessBoard.getGameId();
+        String gameName = createdChessBoard.getGameName();
         List<ChessGameComponentDto> dtos =
                 chessBoard.entrySet().stream()
-                        .map(entry -> new ChessGameComponentDto(entry.getKey(), entry.getValue(), gameId))
+                        .map(entry -> new ChessGameComponentDto(entry.getKey(), entry.getValue(), gameName))
                         .toList();
         dtos.forEach(dto -> save(dto, connection));
     }
@@ -75,12 +75,12 @@ public class ChessBoardDao {
     public void save(ChessGameComponentDto chessGameComponentDto, Connection connection) {
         try {
             final PreparedStatement statement = connection.prepareStatement(
-                    "INSERT INTO chess_boards (`file`,`rank`,`type`,`color`,`game_id`)VALUES (?,?,?,?,?)");
+                    "INSERT INTO chess_boards (`file`,`rank`,`type`,`color`,`game_name`) VALUES (?,?,?,?,?)");
             statement.setString(1, chessGameComponentDto.position().getFileSymbol());
             statement.setInt(2, chessGameComponentDto.position().getRankValue());
             statement.setString(3, chessGameComponentDto.piece().identifyType());
             statement.setString(4, chessGameComponentDto.piece().getColor().name());
-            statement.setInt(5, chessGameComponentDto.gameId());
+            statement.setString(5, chessGameComponentDto.gameName());
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new DBConnectionException("데이터를 저장할 수 없습니다.");
@@ -120,9 +120,9 @@ public class ChessBoardDao {
             Rank rank = Rank.convertToRank(resultSet.getInt("rank"));
             Type type = Type.convertToType(resultSet.getString("type"));
             Color color = Color.convertToColor(resultSet.getString("color"));
-            int gameId = resultSet.getInt("game_id");
+            String gameName = resultSet.getString("game_name");
             ChessGameComponentDto chessGameComponentDto
-                    = new ChessGameComponentDto(Position.of(file, rank), type.generatePiece(color), gameId);
+                    = new ChessGameComponentDto(Position.of(file, rank), type.generatePiece(color), gameName);
             chessBoardComponents.add(chessGameComponentDto);
         }
         return chessBoardComponents;

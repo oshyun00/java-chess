@@ -85,8 +85,8 @@ public class ChessBoard {
         return gameInformation;
     }
 
-    public int getGameId() {
-        return gameInformation.getGameId();
+    public String getGameName() {
+        return gameInformation.getGameName();
     }
 
     private void validateTurn(Piece sourcePiece) {

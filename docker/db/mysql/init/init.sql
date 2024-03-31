@@ -8,19 +8,20 @@ USE chess;
 
 CREATE TABLE IF NOT EXISTS game_information
 (
-    id                 BIGINT     NOT NULL AUTO_INCREMENT,
-    current_turn_color VARCHAR(5) NOT NULL,
+    id                 BIGINT      NOT NULL AUTO_INCREMENT,
+    game_name          VARCHAR(10) NOT NULL UNIQUE,
+    current_turn_color VARCHAR(5)  NOT NULL,
     PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS chess_boards
 (
-    id      BIGINT      NOT NULL AUTO_INCREMENT,
-    file    VARCHAR(5)  NOT NULL,
-    `rank`  TINYINT     NOT NULL,
-    type    VARCHAR(10) NOT NULL,
-    color   VARCHAR(5)  NOT NULL,
-    game_id BIGINT      NOT NULL,
+    id        BIGINT      NOT NULL AUTO_INCREMENT,
+    file      VARCHAR(5)  NOT NULL,
+    `rank`    TINYINT     NOT NULL,
+    type      VARCHAR(10) NOT NULL,
+    color     VARCHAR(5)  NOT NULL,
+    game_name VARCHAR(10) NOT NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY (game_id) REFERENCES game_information (id) ON DELETE CASCADE
+    FOREIGN KEY (game_name) REFERENCES game_information (game_name) ON DELETE CASCADE
 );

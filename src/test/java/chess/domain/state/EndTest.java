@@ -16,7 +16,7 @@ class EndTest {
 
     @BeforeEach
     void setUpChessBoard() {
-        GameInformation gameInformation = new GameInformation(1, Color.WHITE);
+        GameInformation gameInformation = new GameInformation("ella", Color.WHITE);
         chessBoard = new ChessBoard(gameInformation);
     }
 

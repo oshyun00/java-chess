@@ -3,16 +3,20 @@ package chess.domain.board;
 import chess.domain.piece.Color;
 
 public class GameInformation {
-    private final int gameId;
+    private final String gameName;
     private Color curentTurnColor;
 
-    public GameInformation(int gameId, Color curentTurnColor) {
-        this.gameId = gameId;
+    public GameInformation(String gameName, Color curentTurnColor) {
+        this.gameName = gameName;
         this.curentTurnColor = curentTurnColor;
     }
 
-    public int getGameId() {
-        return gameId;
+    public GameInformation(String gameName) {
+        this(gameName, Color.WHITE);
+    }
+
+    public String getGameName() {
+        return gameName;
     }
 
     public Color getCurentTurnColor() {

@@ -24,14 +24,14 @@ public class OutputView {
     public void printGameInformation(List<GameInformation> gameInfos) {
         System.out.printf(
                 "> 체스 게임을 시작합니다." + NEW_LINE
-                        + "> 진행중인 게임을 시작하려면 해당 게임 번호를, 새 게임을 시작하려면 0을 입력하세요 - 예. 0 " + NEW_LINE
+                        + "> 진행중인 게임을 시작하려면 해당 게임 이름을, 새 게임을 시작하려면 새 게임 이름을 입력하세요 - 예. pobi " + NEW_LINE
                         + "> 진행중인 게임 목록 : %s" + NEW_LINE
                 , convertToGameList(gameInfos));
     }
 
-    public void printStartMessage(int gameId) {
+    public void printStartMessage(String gameName) {
         System.out.println(
-                "> " + gameId + "번 게임을 시작합니다." + NEW_LINE
+                "> " + gameName + " 게임을 시작합니다." + NEW_LINE
                         + "> 게임 시작 : " + START_COMMAND + NEW_LINE
                         + "> 게임 종료 : " + END_COMMAND + NEW_LINE
                         + "> 게임 이동 : " + MOVE_COMMAND + " source위치 target위치 - 예. "
@@ -42,7 +42,7 @@ public class OutputView {
 
     private String convertToGameList(List<GameInformation> gameInfos) {
         return gameInfos.stream()
-                .map(GameInformation::getGameId)
+                .map(GameInformation::getGameName)
                 .map(Object::toString)
                 .collect(Collectors.joining(", "));
     }
