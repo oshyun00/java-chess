@@ -18,10 +18,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-public class ChessGameDao {
+public class ChessBoardDao {
     private final ConnectionGenerator connectionGenerator;
 
-    public ChessGameDao(ConnectionGenerator connectionGenerator) {
+    public ChessBoardDao(ConnectionGenerator connectionGenerator) {
         this.connectionGenerator = connectionGenerator;
     }
 

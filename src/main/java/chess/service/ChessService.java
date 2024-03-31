@@ -1,6 +1,6 @@
 package chess.service;
 
-import chess.dao.ChessGameDao;
+import chess.dao.ChessBoardDao;
 import chess.dao.GameInformationDao;
 import chess.domain.board.ChessBoard;
 import chess.domain.board.GameInformation;
@@ -17,11 +17,11 @@ public class ChessService {
     private static final int TARGET_POSITION_INDEX = 1;
 
     private final GameInformationDao gameInformationDao;
-    private final ChessGameDao chessGameDao;
+    private final ChessBoardDao chessBoardDao;
 
-    public ChessService(GameInformationDao gameInformationDao, ChessGameDao chessGameDao) {
+    public ChessService(GameInformationDao gameInformationDao, ChessBoardDao chessBoardDao) {
         this.gameInformationDao = gameInformationDao;
-        this.chessGameDao = chessGameDao;
+        this.chessBoardDao = chessBoardDao;
     }
 
     public List<GameInformation> getAllGameInformation() {
@@ -33,7 +33,7 @@ public class ChessService {
     }
 
     public void updateChessBoard(List<Position> movedPath, GameInformation gameInformation) {
-        chessGameDao.update(movedPath.get(SOURCE_POSITION_INDEX), movedPath.get(TARGET_POSITION_INDEX));
+        chessBoardDao.update(movedPath.get(SOURCE_POSITION_INDEX), movedPath.get(TARGET_POSITION_INDEX));
         gameInformationDao.updateTurn(gameInformation);
     }
 
@@ -48,12 +48,12 @@ public class ChessService {
         gameInformationDao.create();
         GameInformation gameInformation = gameInformationDao.findLatestGame();
         ChessBoard createdChessBoard = new ChessBoard(gameInformation);
-        chessGameDao.saveChessBoard(createdChessBoard);
+        chessBoardDao.saveChessBoard(createdChessBoard);
         return createdChessBoard;
     }
 
     private ChessBoard getSavedChessBoard(int gameId) {
-        List<ChessGameComponentDto> dto = chessGameDao.findById(gameId);
+        List<ChessGameComponentDto> dto = chessBoardDao.findById(gameId);
         Map<Position, Piece> chessBoard = new LinkedHashMap<>();
         dto.forEach(e -> chessBoard.put(e.position(), e.piece()));
         GameInformation gameInformation = gameInformationDao.findByGameId(gameId);

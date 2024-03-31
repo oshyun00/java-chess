@@ -17,19 +17,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-class ChessGameDaoTest implements DaoTest {
-    private ChessGameDao chessGameDao;
+class ChessBoardDaoTest implements DaoTest {
+    private ChessBoardDao chessBoardDao;
 
     @BeforeEach
     void initializeChessGameDao() {
-        chessGameDao = new ChessGameDao(ConnectionGenerator.from(TEST_CONFIGURATION_FILE_NAME));
+        chessBoardDao = new ChessBoardDao(ConnectionGenerator.from(TEST_CONFIGURATION_FILE_NAME));
     }
 
     @DisplayName("데이터베이스에서 전체 데이터를 조회한다.")
     @Test
     void findAll() {
         // when
-        List<ChessGameComponentDto> dtos = chessGameDao.findAll();
+        List<ChessGameComponentDto> dtos = chessBoardDao.findAll();
 
         // then
         assertThat(dtos.size()).isEqualTo(32);
@@ -43,10 +43,10 @@ class ChessGameDaoTest implements DaoTest {
                 Position.of(File.A, Rank.ONE), new Rook(Color.WHITE), 1);
 
         // when
-        chessGameDao.save(chessGameComponentDto);
+        chessBoardDao.save(chessGameComponentDto);
 
         // then
-        assertThat(chessGameDao.findAll().size()).isEqualTo(33);
+        assertThat(chessBoardDao.findAll().size()).isEqualTo(33);
     }
 
     @DisplayName("데이터베이스에서 position에 해당되는 piece를 찾아온다.")
@@ -56,7 +56,7 @@ class ChessGameDaoTest implements DaoTest {
         Position position = Position.of(File.A, Rank.ONE);
 
         // when
-        Piece piece = chessGameDao.findPieceByPosition(position);
+        Piece piece = chessBoardDao.findPieceByPosition(position);
 
         // then
         assertAll(
@@ -73,13 +73,13 @@ class ChessGameDaoTest implements DaoTest {
         Position target = Position.of(File.B, Rank.FIVE);
 
         // when
-        chessGameDao.update(source, target);
-        Piece targetPiece = chessGameDao.findPieceByPosition(target);
+        chessBoardDao.update(source, target);
+        Piece targetPiece = chessBoardDao.findPieceByPosition(target);
 
         // then
         assertAll(
                 () -> assertThat(targetPiece).isInstanceOf(Rook.class),
-                () -> assertThatThrownBy(() -> chessGameDao.findPieceByPosition(source))
+                () -> assertThatThrownBy(() -> chessBoardDao.findPieceByPosition(source))
                         .isInstanceOf(NoSuchElementException.class));
     }
 
@@ -90,10 +90,10 @@ class ChessGameDaoTest implements DaoTest {
         Position target = Position.of(File.A, Rank.ONE);
 
         // when
-        chessGameDao.remove(target);
+        chessBoardDao.remove(target);
 
         // then
-        assertThatThrownBy(() -> chessGameDao.findPieceByPosition(target))
+        assertThatThrownBy(() -> chessBoardDao.findPieceByPosition(target))
                 .isInstanceOf(NoSuchElementException.class);
     }
 }

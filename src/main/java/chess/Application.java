@@ -1,7 +1,7 @@
 package chess;
 
 import chess.controller.ChessGameController;
-import chess.dao.ChessGameDao;
+import chess.dao.ChessBoardDao;
 import chess.dao.ConnectionGenerator;
 import chess.dao.GameInformationDao;
 import chess.service.ChessService;
@@ -15,7 +15,7 @@ public class Application {
         ChessGameController chessGameController = new ChessGameController(new InputView(), new OutputView(),
                 new ChessService(
                         new GameInformationDao(ConnectionGenerator.from(CONFIGURATION_FILE_NAME)),
-                        new ChessGameDao(ConnectionGenerator.from(CONFIGURATION_FILE_NAME))
+                        new ChessBoardDao(ConnectionGenerator.from(CONFIGURATION_FILE_NAME))
                 ));
         chessGameController.run();
     }
