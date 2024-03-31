@@ -29,7 +29,7 @@ class GameInformationDaoTest implements DaoTest {
         List<GameInformation> dtos = gameInformationDao.findAll(connection);
 
         // then
-        assertThat(dtos.size()).isEqualTo(1);
+        assertThat(dtos).hasSize(2);
     }
 
     @DisplayName("gameName에 해당되는 게임 정보를 찾아온다.")
@@ -71,20 +71,20 @@ class GameInformationDaoTest implements DaoTest {
         List<GameInformation> gameInfos = gameInformationDao.findAll(connection);
 
         // then
-        assertThat(gameInfos).isEmpty();
+        assertThat(gameInfos).hasSize(1);
     }
 
     @DisplayName("데이터베이스에 새로운 게임 데이터를 저장한다.")
     @Test
     void save() {
         // given
-        GameInformation gameInformation = new GameInformation("ash");
+        GameInformation gameInformation = new GameInformation("lily");
 
         // when
         gameInformationDao.create(gameInformation, connection);
         List<GameInformation> gameInfos = gameInformationDao.findAll(connection);
 
         // then
-        assertThat(gameInfos.size()).isEqualTo(2);
+        assertThat(gameInfos).hasSize(3);
     }
 }

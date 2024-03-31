@@ -24,7 +24,8 @@ CREATE TABLE IF NOT EXISTS chess_boards
 );
 
 INSERT INTO game_information (game_name, current_turn_color)
-VALUES ('ella', 'WHITE');
+VALUES ('ella', 'WHITE'),
+       ('ash', 'WHITE');
 
 INSERT INTO chess_boards (file, `rank`, type, color, game_name)
 VALUES ('a', 1, 'ROOK', 'WHITE', "ella"),

@@ -72,21 +72,6 @@ public class ChessBoardDao {
         dtos.forEach(dto -> save(dto, connection));
     }
 
-    public void save(ChessGameComponentDto chessGameComponentDto, Connection connection) {
-        try {
-            final PreparedStatement statement = connection.prepareStatement(
-                    "INSERT INTO chess_boards (`file`,`rank`,`type`,`color`,`game_name`) VALUES (?,?,?,?,?)");
-            statement.setString(1, chessGameComponentDto.position().getFileSymbol());
-            statement.setInt(2, chessGameComponentDto.position().getRankValue());
-            statement.setString(3, chessGameComponentDto.piece().identifyType());
-            statement.setString(4, chessGameComponentDto.piece().getColor().name());
-            statement.setString(5, chessGameComponentDto.gameName());
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            throw new DBConnectionException("데이터를 저장할 수 없습니다.");
-        }
-    }
-
     public void update(Position source, Position target, Connection connection) {
         try {
             final PreparedStatement statement = connection.prepareStatement(
@@ -101,15 +86,18 @@ public class ChessBoardDao {
         }
     }
 
-    public void remove(Position target, Connection connection) {
+    private void save(ChessGameComponentDto chessGameComponentDto, Connection connection) {
         try {
             final PreparedStatement statement = connection.prepareStatement(
-                    "DELETE FROM chess_boards WHERE file = ? AND `rank` = ?");
-            statement.setString(1, target.getFileSymbol());
-            statement.setInt(2, target.getRankValue());
+                    "INSERT INTO chess_boards (`file`,`rank`,`type`,`color`,`game_name`) VALUES (?,?,?,?,?)");
+            statement.setString(1, chessGameComponentDto.position().getFileSymbol());
+            statement.setInt(2, chessGameComponentDto.position().getRankValue());
+            statement.setString(3, chessGameComponentDto.piece().identifyType());
+            statement.setString(4, chessGameComponentDto.piece().getColor().name());
+            statement.setString(5, chessGameComponentDto.gameName());
             statement.executeUpdate();
         } catch (SQLException e) {
-            throw new DBConnectionException("해당 위치의 말을 제거할 수 없습니다.");
+            throw new DBConnectionException("데이터를 저장할 수 없습니다.");
         }
     }
 

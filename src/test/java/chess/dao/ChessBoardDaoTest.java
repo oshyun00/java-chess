@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+import chess.domain.board.ChessBoard;
+import chess.domain.board.GameInformation;
 import chess.domain.piece.Color;
 import chess.domain.piece.Piece;
 import chess.domain.piece.Rook;
@@ -37,21 +39,18 @@ class ChessBoardDaoTest implements DaoTest {
         List<ChessGameComponentDto> dtos = chessBoardDao.findAll(connection);
 
         // then
-        assertThat(dtos.size()).isEqualTo(32);
+        assertThat(dtos).hasSize(32);
     }
 
-    @DisplayName("데이터베이스에 데이터를 저장한다.")
+    @DisplayName("데이터베이스에서 게임 이름에 해당하는 데이터를 조회한다.")
     @Test
-    void save() {
-        // given
-        ChessGameComponentDto chessGameComponentDto = new ChessGameComponentDto(
-                Position.of(File.A, Rank.ONE), new Rook(Color.WHITE), "ella");
-
+    void findByGameName() {
         // when
-        chessBoardDao.save(chessGameComponentDto, connection);
+        String gameName = "ella";
+        List<ChessGameComponentDto> dtos = chessBoardDao.findByGameName(gameName, connection);
 
         // then
-        assertThat(chessBoardDao.findAll(connection).size()).isEqualTo(33);
+        assertThat(dtos).hasSize(32);
     }
 
     @DisplayName("데이터베이스에서 position에 해당되는 piece를 찾아온다.")
@@ -70,6 +69,20 @@ class ChessBoardDaoTest implements DaoTest {
         );
     }
 
+    @DisplayName("ChessBoard를 데이터베이스에 저장한다.")
+    @Test
+    void saveChessBoard() {
+        // given
+        GameInformation gameInformation = new GameInformation("ash");
+        ChessBoard chessBoard = new ChessBoard(gameInformation);
+
+        // when
+        chessBoardDao.saveChessBoard(chessBoard, connection);
+
+        // then
+        assertThat(chessBoardDao.findAll(connection)).hasSize(64);
+    }
+
     @DisplayName("piece가 이동하면 데이터베이스에서 해당 정보를 수정한다.")
     @Test
     void update() {
@@ -86,19 +99,5 @@ class ChessBoardDaoTest implements DaoTest {
                 () -> assertThat(targetPiece).isInstanceOf(Rook.class),
                 () -> assertThatThrownBy(() -> chessBoardDao.findPieceByPosition(source, connection))
                         .isInstanceOf(NoSuchElementException.class));
-    }
-
-    @DisplayName("piece가 제거되면 데이터베이스에서 해당 정보를 삭제한다.")
-    @Test
-    void remove() {
-        // given
-        Position target = Position.of(File.A, Rank.ONE);
-
-        // when
-        chessBoardDao.remove(target, connection);
-
-        // then
-        assertThatThrownBy(() -> chessBoardDao.findPieceByPosition(target, connection))
-                .isInstanceOf(NoSuchElementException.class);
     }
 }
