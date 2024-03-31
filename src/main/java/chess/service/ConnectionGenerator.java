@@ -1,4 +1,4 @@
-package chess.dao;
+package chess.service;
 
 import chess.exception.DBConnectionException;
 import java.io.FileInputStream;

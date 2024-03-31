@@ -1,6 +1,7 @@
 package chess.dao;
 
 import chess.exception.DBConnectionException;
+import chess.service.ConnectionGenerator;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;

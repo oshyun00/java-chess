@@ -7,56 +7,123 @@ import chess.domain.board.GameInformation;
 import chess.domain.piece.Piece;
 import chess.domain.position.Position;
 import chess.dto.ChessGameComponentDto;
+import chess.exception.DBConnectionException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ChessService {
     private static final int NEW_GAME_COMMAND = 0;
-    private static final int SOURCE_POSITION_INDEX = 0;
-    private static final int TARGET_POSITION_INDEX = 1;
+    private static final int SOURCE_INDEX = 0;
+    private static final int TARGET_INDEX = 1;
 
     private final GameInformationDao gameInformationDao;
     private final ChessBoardDao chessBoardDao;
+    private final ConnectionGenerator connectionGenerator;
 
-    public ChessService(GameInformationDao gameInformationDao, ChessBoardDao chessBoardDao) {
+    public ChessService(GameInformationDao gameInformationDao, ChessBoardDao chessBoardDao,
+                        ConnectionGenerator connectionGenerator) {
         this.gameInformationDao = gameInformationDao;
         this.chessBoardDao = chessBoardDao;
+        this.connectionGenerator = connectionGenerator;
     }
 
     public List<GameInformation> getAllGameInformation() {
-        return gameInformationDao.findAll();
+        Connection connection = connectionGenerator.getConnection();
+        try {
+            connection.setAutoCommit(false);
+            List<GameInformation> gameInfos = gameInformationDao.findAll(connection);
+            connection.commit();
+            return gameInfos;
+        } catch (RuntimeException | SQLException e) {
+            rollback(connection);
+            throw new DBConnectionException(e.getMessage());
+        } finally {
+            closeConnection(connection);
+        }
     }
 
+
     public void removeFinishedGame(ChessBoard chessBoard) {
-        gameInformationDao.remove(chessBoard.getGameId());
+        Connection connection = connectionGenerator.getConnection();
+        try {
+            connection.setAutoCommit(false);
+            gameInformationDao.remove(chessBoard.getGameId(), connection);
+            connection.commit();
+        } catch (RuntimeException | SQLException e) {
+            rollback(connection);
+            throw new DBConnectionException(e.getMessage());
+        } finally {
+            closeConnection(connection);
+        }
     }
 
     public void updateChessBoard(List<Position> movedPath, GameInformation gameInformation) {
-        chessBoardDao.update(movedPath.get(SOURCE_POSITION_INDEX), movedPath.get(TARGET_POSITION_INDEX));
-        gameInformationDao.updateTurn(gameInformation);
+        Connection connection = connectionGenerator.getConnection();
+        try {
+            connection.setAutoCommit(false);
+            chessBoardDao.update(movedPath.get(SOURCE_INDEX), movedPath.get(TARGET_INDEX), connection);
+            gameInformationDao.updateTurn(gameInformation, connection);
+            connection.commit();
+        } catch (RuntimeException | SQLException e) {
+            rollback(connection);
+            throw new DBConnectionException(e.getMessage());
+        } finally {
+            closeConnection(connection);
+        }
     }
 
     public ChessBoard findChessBoard(int gameId) {
-        if (gameId == NEW_GAME_COMMAND) {
-            return createNewChessBoard();
+        Connection connection = connectionGenerator.getConnection();
+        try {
+            connection.setAutoCommit(false);
+            if (gameId == NEW_GAME_COMMAND) {
+                ChessBoard createdChessBoard = createNewChessBoard(connection);
+                connection.commit();
+                return createdChessBoard;
+            }
+            ChessBoard searchedChessBoard = getSavedChessBoard(gameId, connection);
+            connection.commit();
+            return searchedChessBoard;
+        } catch (RuntimeException | SQLException e) {
+            rollback(connection);
+            throw new DBConnectionException(e.getMessage());
+        } finally {
+            closeConnection(connection);
         }
-        return getSavedChessBoard(gameId);
     }
 
-    private ChessBoard createNewChessBoard() {
-        gameInformationDao.create();
-        GameInformation gameInformation = gameInformationDao.findLatestGame();
+    private ChessBoard createNewChessBoard(Connection connection) {
+        gameInformationDao.create(connection);
+        GameInformation gameInformation = gameInformationDao.findLatestGame(connection);
         ChessBoard createdChessBoard = new ChessBoard(gameInformation);
-        chessBoardDao.saveChessBoard(createdChessBoard);
+        chessBoardDao.saveChessBoard(createdChessBoard, connection);
         return createdChessBoard;
     }
 
-    private ChessBoard getSavedChessBoard(int gameId) {
-        List<ChessGameComponentDto> dto = chessBoardDao.findById(gameId);
+    private ChessBoard getSavedChessBoard(int gameId, Connection connection) {
+        List<ChessGameComponentDto> dto = chessBoardDao.findById(gameId, connection);
         Map<Position, Piece> chessBoard = new LinkedHashMap<>();
         dto.forEach(e -> chessBoard.put(e.position(), e.piece()));
-        GameInformation gameInformation = gameInformationDao.findByGameId(gameId);
+        GameInformation gameInformation = gameInformationDao.findByGameId(gameId, connection);
         return new ChessBoard(chessBoard, gameInformation);
+    }
+
+    private void rollback(Connection connection) {
+        try {
+            connection.rollback();
+        } catch (SQLException e) {
+            throw new DBConnectionException(e.getMessage());
+        }
+    }
+
+    private void closeConnection(Connection connection) {
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            throw new DBConnectionException(e.getMessage());
+        }
     }
 }

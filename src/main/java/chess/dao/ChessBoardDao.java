@@ -19,26 +19,19 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 public class ChessBoardDao {
-    private final ConnectionGenerator connectionGenerator;
-
-    public ChessBoardDao(ConnectionGenerator connectionGenerator) {
-        this.connectionGenerator = connectionGenerator;
-    }
-
-    public List<ChessGameComponentDto> findAll() {
-        try (final Connection connection = connectionGenerator.getConnection()) {
+    public List<ChessGameComponentDto> findAll(Connection connection) {
+        try {
             final PreparedStatement statement = connection.prepareStatement("SELECT * FROM chess_boards");
             final ResultSet resultSet = statement.executeQuery();
 
             return getChessGameComponentDtos(resultSet);
         } catch (SQLException e) {
-            connectionGenerator.handleSQLException(e);
             throw new DBConnectionException("진행중인 게임 데이터를 가져올 수 없습니다.");
         }
     }
 
-    public List<ChessGameComponentDto> findById(int gameId) {
-        try (final Connection connection = connectionGenerator.getConnection()) {
+    public List<ChessGameComponentDto> findById(int gameId, Connection connection) {
+        try {
             final PreparedStatement statement = connection.prepareStatement(
                     "SELECT * FROM chess_boards WHERE game_id = ?");
             statement.setInt(1, gameId);
@@ -46,13 +39,12 @@ public class ChessBoardDao {
 
             return getChessGameComponentDtos(resultSet);
         } catch (SQLException e) {
-            connectionGenerator.handleSQLException(e);
             throw new DBConnectionException("id에 해당되는 게임 내역을 가져올 수 없습니다.");
         }
     }
 
-    public Piece findPieceByPosition(Position position) {
-        try (final Connection connection = connectionGenerator.getConnection()) {
+    public Piece findPieceByPosition(Position position, Connection connection) {
+        try {
             final PreparedStatement statement = connection.prepareStatement(
                     "SELECT * FROM chess_boards WHERE `file` = ? AND `rank` = ?");
             statement.setString(1, position.getFileSymbol());
@@ -66,23 +58,22 @@ public class ChessBoardDao {
             }
             throw new NoSuchElementException("해당 위치에 존재하는 말을 찾을 수 없습니다.");
         } catch (SQLException e) {
-            connectionGenerator.handleSQLException(e);
             throw new DBConnectionException("해당 위치에 존재하는 말을 찾을 수 없습니다.");
         }
     }
 
-    public void saveChessBoard(ChessBoard createdChessBoard) {
+    public void saveChessBoard(ChessBoard createdChessBoard, Connection connection) {
         Map<Position, Piece> chessBoard = createdChessBoard.getChessBoard();
         int gameId = createdChessBoard.getGameId();
         List<ChessGameComponentDto> dtos =
                 chessBoard.entrySet().stream()
                         .map(entry -> new ChessGameComponentDto(entry.getKey(), entry.getValue(), gameId))
                         .toList();
-        dtos.forEach(this::save);
+        dtos.forEach(dto -> save(dto, connection));
     }
 
-    public void save(ChessGameComponentDto chessGameComponentDto) {
-        try (final Connection connection = connectionGenerator.getConnection()) {
+    public void save(ChessGameComponentDto chessGameComponentDto, Connection connection) {
+        try {
             final PreparedStatement statement = connection.prepareStatement(
                     "INSERT INTO chess_boards (`file`,`rank`,`type`,`color`,`game_id`)VALUES (?,?,?,?,?)");
             statement.setString(1, chessGameComponentDto.position().getFileSymbol());
@@ -92,13 +83,12 @@ public class ChessBoardDao {
             statement.setInt(5, chessGameComponentDto.gameId());
             statement.executeUpdate();
         } catch (SQLException e) {
-            connectionGenerator.handleSQLException(e);
             throw new DBConnectionException("데이터를 저장할 수 없습니다.");
         }
     }
 
-    public void update(Position source, Position target) {
-        try (final Connection connection = connectionGenerator.getConnection()) {
+    public void update(Position source, Position target, Connection connection) {
+        try {
             final PreparedStatement statement = connection.prepareStatement(
                     "UPDATE chess_boards SET file = ?, `rank` = ? WHERE file = ? AND `rank` = ?");
             statement.setString(1, target.getFileSymbol());
@@ -107,20 +97,18 @@ public class ChessBoardDao {
             statement.setInt(4, source.getRankValue());
             statement.executeUpdate();
         } catch (SQLException e) {
-            connectionGenerator.handleSQLException(e);
             throw new DBConnectionException("해당 위치의 게임 정보를 업데이트 할 수 없습니다.");
         }
     }
 
-    public void remove(Position target) {
-        try (final Connection connection = connectionGenerator.getConnection()) {
+    public void remove(Position target, Connection connection) {
+        try {
             final PreparedStatement statement = connection.prepareStatement(
                     "DELETE FROM chess_boards WHERE file = ? AND `rank` = ?");
             statement.setString(1, target.getFileSymbol());
             statement.setInt(2, target.getRankValue());
             statement.executeUpdate();
         } catch (SQLException e) {
-            connectionGenerator.handleSQLException(e);
             throw new DBConnectionException("해당 위치의 말을 제거할 수 없습니다.");
         }
     }
