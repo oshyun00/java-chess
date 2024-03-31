@@ -19,8 +19,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 public class ChessGameDao {
-    private static final String TABLE_NAME = "chess_boards";
-
     private final ConnectionGenerator connectionGenerator;
 
     public ChessGameDao(ConnectionGenerator connectionGenerator) {
@@ -29,7 +27,7 @@ public class ChessGameDao {
 
     public List<ChessGameComponentDto> findAll() {
         try (final Connection connection = connectionGenerator.getConnection()) {
-            final PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + TABLE_NAME);
+            final PreparedStatement statement = connection.prepareStatement("SELECT * FROM chess_boards");
             final ResultSet resultSet = statement.executeQuery();
 
             return getChessGameComponentDtos(resultSet);
@@ -42,7 +40,7 @@ public class ChessGameDao {
     public List<ChessGameComponentDto> findById(int gameId) {
         try (final Connection connection = connectionGenerator.getConnection()) {
             final PreparedStatement statement = connection.prepareStatement(
-                    "SELECT * FROM " + TABLE_NAME + " WHERE game_id = ?");
+                    "SELECT * FROM chess_boards WHERE game_id = ?");
             statement.setInt(1, gameId);
             ResultSet resultSet = statement.executeQuery();
 
@@ -56,7 +54,7 @@ public class ChessGameDao {
     public Piece findPieceByPosition(Position position) {
         try (final Connection connection = connectionGenerator.getConnection()) {
             final PreparedStatement statement = connection.prepareStatement(
-                    "SELECT * FROM " + TABLE_NAME + " WHERE `file` = ? AND `rank` = ?");
+                    "SELECT * FROM chess_boards WHERE `file` = ? AND `rank` = ?");
             statement.setString(1, position.getFileSymbol());
             statement.setInt(2, position.getRankValue());
             ResultSet resultSet = statement.executeQuery();
@@ -86,7 +84,7 @@ public class ChessGameDao {
     public void save(ChessGameComponentDto chessGameComponentDto) {
         try (final Connection connection = connectionGenerator.getConnection()) {
             final PreparedStatement statement = connection.prepareStatement(
-                    "INSERT INTO " + TABLE_NAME + " (`file`,`rank`,`type`,`color`,`game_id`)VALUES (?,?,?,?,?)");
+                    "INSERT INTO chess_boards (`file`,`rank`,`type`,`color`,`game_id`)VALUES (?,?,?,?,?)");
             statement.setString(1, chessGameComponentDto.position().getFileSymbol());
             statement.setInt(2, chessGameComponentDto.position().getRankValue());
             statement.setString(3, chessGameComponentDto.piece().identifyType());
@@ -102,7 +100,7 @@ public class ChessGameDao {
     public void update(Position source, Position target) {
         try (final Connection connection = connectionGenerator.getConnection()) {
             final PreparedStatement statement = connection.prepareStatement(
-                    "UPDATE " + TABLE_NAME + " SET file = ?, `rank` = ? WHERE file = ? AND `rank` = ?");
+                    "UPDATE chess_boards SET file = ?, `rank` = ? WHERE file = ? AND `rank` = ?");
             statement.setString(1, target.getFileSymbol());
             statement.setInt(2, target.getRankValue());
             statement.setString(3, source.getFileSymbol());
@@ -117,7 +115,7 @@ public class ChessGameDao {
     public void remove(Position target) {
         try (final Connection connection = connectionGenerator.getConnection()) {
             final PreparedStatement statement = connection.prepareStatement(
-                    "DELETE FROM " + TABLE_NAME + " WHERE file = ? AND `rank` = ?");
+                    "DELETE FROM chess_boards WHERE file = ? AND `rank` = ?");
             statement.setString(1, target.getFileSymbol());
             statement.setInt(2, target.getRankValue());
             statement.executeUpdate();

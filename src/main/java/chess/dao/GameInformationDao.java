@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 public class GameInformationDao {
-    private static final String TABLE_NAME = "game_information";
-
     private final ConnectionGenerator connectionGenerator;
 
     public GameInformationDao(ConnectionGenerator connectionGenerator) {
@@ -22,7 +20,7 @@ public class GameInformationDao {
 
     public List<GameInformation> findAll() {
         try (final Connection connection = connectionGenerator.getConnection()) {
-            final PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + TABLE_NAME);
+            final PreparedStatement statement = connection.prepareStatement("SELECT * FROM game_information");
             final ResultSet resultSet = statement.executeQuery();
 
             return convertToGameInformation(resultSet);
@@ -35,7 +33,7 @@ public class GameInformationDao {
     public GameInformation findByGameId(int gameId) {
         try (final Connection connection = connectionGenerator.getConnection()) {
             final PreparedStatement statement = connection.prepareStatement(
-                    "SELECT * FROM " + TABLE_NAME + " WHERE `id` = ?");
+                    "SELECT * FROM game_information WHERE `id` = ?");
             statement.setInt(1, gameId);
             ResultSet resultSet = statement.executeQuery();
 
@@ -53,7 +51,7 @@ public class GameInformationDao {
     public GameInformation findLatestGame() {
         try (final Connection connection = connectionGenerator.getConnection()) {
             final PreparedStatement statement = connection.prepareStatement(
-                    "SELECT * FROM " + TABLE_NAME + " ORDER BY id DESC LIMIT 1");
+                    "SELECT * FROM game_information ORDER BY id DESC LIMIT 1");
             final ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
@@ -71,7 +69,7 @@ public class GameInformationDao {
     public void remove(int gameId) {
         try (final Connection connection = connectionGenerator.getConnection()) {
             final PreparedStatement statement = connection.prepareStatement(
-                    "DELETE FROM " + TABLE_NAME + " WHERE id = ?");
+                    "DELETE FROM game_information WHERE id = ?");
             statement.setInt(1, gameId);
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -83,7 +81,7 @@ public class GameInformationDao {
     public void create() {
         try (final Connection connection = connectionGenerator.getConnection()) {
             final PreparedStatement statement = connection.prepareStatement(
-                    "INSERT INTO " + TABLE_NAME + " (`current_turn_color`)VALUES (?)");
+                    "INSERT INTO game_information (`current_turn_color`)VALUES (?)");
             statement.setString(1, Color.WHITE.name());
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -95,7 +93,7 @@ public class GameInformationDao {
     public void updateTurn(GameInformation gameInformation) {
         try (final Connection connection = connectionGenerator.getConnection()) {
             final PreparedStatement statement = connection.prepareStatement(
-                    "UPDATE " + TABLE_NAME + " SET current_turn_color = ? WHERE id = ?");
+                    "UPDATE game_information SET current_turn_color = ? WHERE id = ?");
             statement.setString(1, gameInformation.getCurentTurnColor().name());
             statement.setInt(2, gameInformation.getGameId());
             statement.executeUpdate();
