@@ -10,7 +10,7 @@ import java.sql.Statement;
 import org.junit.jupiter.api.BeforeEach;
 
 public interface DaoTest {
-    String TEST_CONFIGURATION_FILE_NAME = "src/main/java/chess/resource/applicaton-test.yml";
+    String TEST_CONFIGURATION_FILE_NAME = "src/main/java/chess/resource/test.yml";
     String TEST_INIT_DATA_FILE_NAME = "docker/db/mysql/init/init_for_test.sql";
 
     /*
