@@ -57,10 +57,11 @@ class ChessBoardDaoTest implements DaoTest {
     @Test
     void findPieceByPosition() {
         // given
+        String gameName = "ella";
         Position position = Position.of(File.A, Rank.ONE);
 
         // when
-        Piece piece = chessBoardDao.findPieceByPosition(position, connection);
+        Piece piece = chessBoardDao.findPieceByPosition(position, gameName, connection);
 
         // then
         assertAll(
@@ -87,17 +88,18 @@ class ChessBoardDaoTest implements DaoTest {
     @Test
     void update() {
         // given
+        String gameName = "ella";
         Position source = Position.of(File.A, Rank.ONE);
         Position target = Position.of(File.B, Rank.FIVE);
 
         // when
-        chessBoardDao.update(source, target, connection);
-        Piece targetPiece = chessBoardDao.findPieceByPosition(target, connection);
+        chessBoardDao.update(source, target, gameName, connection);
+        Piece targetPiece = chessBoardDao.findPieceByPosition(target, gameName, connection);
 
         // then
         assertAll(
                 () -> assertThat(targetPiece).isInstanceOf(Rook.class),
-                () -> assertThatThrownBy(() -> chessBoardDao.findPieceByPosition(source, connection))
+                () -> assertThatThrownBy(() -> chessBoardDao.findPieceByPosition(source, gameName, connection))
                         .isInstanceOf(NoSuchElementException.class));
     }
 }

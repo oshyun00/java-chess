@@ -62,7 +62,8 @@ public class ChessService {
         Connection connection = connectionGenerator.getConnection();
         try {
             connection.setAutoCommit(false);
-            chessBoardDao.update(movedPath.get(SOURCE_INDEX), movedPath.get(TARGET_INDEX), connection);
+            chessBoardDao.update(movedPath.get(SOURCE_INDEX), movedPath.get(TARGET_INDEX),
+                    gameInformation.getGameName(), connection);
             gameInformationDao.updateTurn(gameInformation, connection);
             connection.commit();
         } catch (RuntimeException | SQLException e) {
