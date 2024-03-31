@@ -1,5 +1,7 @@
-package chess.dao;
+package chess.service;
 
+import chess.dao.ChessGameDao;
+import chess.dao.GameInformationDao;
 import chess.domain.board.ChessBoard;
 import chess.domain.board.GameInformation;
 import chess.domain.piece.Piece;
@@ -9,7 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ChessDBService {
+public class ChessService {
     private static final int NEW_GAME_COMMAND = 0;
     private static final int SOURCE_POSITION_INDEX = 0;
     private static final int TARGET_POSITION_INDEX = 1;
@@ -17,7 +19,7 @@ public class ChessDBService {
     private final GameInformationDao gameInformationDao;
     private final ChessGameDao chessGameDao;
 
-    public ChessDBService(GameInformationDao gameInformationDao, ChessGameDao chessGameDao) {
+    public ChessService(GameInformationDao gameInformationDao, ChessGameDao chessGameDao) {
         this.gameInformationDao = gameInformationDao;
         this.chessGameDao = chessGameDao;
     }

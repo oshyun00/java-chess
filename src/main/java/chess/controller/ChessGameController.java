@@ -3,7 +3,6 @@ package chess.controller;
 import static chess.utils.Constant.MOVE_COMMAND;
 import static chess.utils.Constant.STATUS_COMMAND;
 
-import chess.dao.ChessDBService;
 import chess.domain.board.ChessBoard;
 import chess.domain.board.GameInformation;
 import chess.domain.piece.Color;
@@ -14,6 +13,7 @@ import chess.domain.state.Ready;
 import chess.domain.vo.Score;
 import chess.dto.ChessBoardDto;
 import chess.dto.CurrentResultDto;
+import chess.service.ChessService;
 import chess.view.InputView;
 import chess.view.OutputView;
 import java.util.List;
@@ -24,12 +24,12 @@ public class ChessGameController {
 
     private final InputView inputView;
     private final OutputView outputView;
-    private final ChessDBService chessDBService;
+    private final ChessService chessService;
 
-    public ChessGameController(InputView inputView, OutputView outputView, ChessDBService chessDBService) {
+    public ChessGameController(InputView inputView, OutputView outputView, ChessService chessService) {
         this.inputView = inputView;
         this.outputView = outputView;
-        this.chessDBService = chessDBService;
+        this.chessService = chessService;
     }
 
     public void run() {
@@ -53,17 +53,17 @@ public class ChessGameController {
     }
 
     private ChessBoard prepareChessBoard() {
-        List<GameInformation> gameInfos = chessDBService.getAllGameInformation();
+        List<GameInformation> gameInfos = chessService.getAllGameInformation();
         outputView.printGameInformation(gameInfos);
 
         int gameId = repeatUntilSuccess(() -> inputView.readGameId(gameInfos));
-        return chessDBService.findChessBoard(gameId);
+        return chessService.findChessBoard(gameId);
     }
 
     private void handleKingCapture(End gameState, ChessBoard chessBoard) {
         if (gameState.isEndByKingCaptured()) {
             printResultByKingCaptured(chessBoard);
-            chessDBService.removeFinishedGame(chessBoard);
+            chessService.removeFinishedGame(chessBoard);
         }
     }
 
@@ -81,7 +81,7 @@ public class ChessGameController {
         if (command.get(COMMAND_TYPE_INDEX).equals(MOVE_COMMAND)) {
             List<Position> sourceAndTarget = gameState.convertToSourceAndTarget(command);
             GameState updatedGameState = gameState.play(command);
-            chessDBService.updateChessBoard(sourceAndTarget, gameInformation);
+            chessService.updateChessBoard(sourceAndTarget, gameInformation);
             return updatedGameState;
         }
         return gameState.play(command);
